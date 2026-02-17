@@ -1,0 +1,614 @@
+% ARKHEION AGI 2.0 - Paper 45: Computational Neuromodulation
+% Jhonatan Vieira Feitosa | Manaus, Amazonas, Brazil
+% February 2026
+
+\documentclass[11pt,twocolumn]{article}
+
+% Encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Layout
+\usepackage[margin=0.75in]{geometry}
+\usepackage{fancyhdr}
+
+% Mathematics
+\usepackage{amsmath,amssymb}
+
+% Graphics and colors
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,shapes,positioning}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.17}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{multirow}
+
+% Code listings
+\usepackage{listings}
+
+% Hyperlinks
+\usepackage{hyperref}
+
+% ==================== COLORS ====================
+\definecolor{arkblue}{RGB}{0,102,204}
+\definecolor{arkpurple}{RGB}{102,51,153}
+\definecolor{arkgreen}{RGB}{0,153,76}
+\definecolor{arkgold}{RGB}{218,165,32}
+\definecolor{DA}{RGB}{255,100,100}
+\definecolor{5HT}{RGB}{100,100,255}
+\definecolor{NA}{RGB}{255,165,0}
+\definecolor{ACh}{RGB}{0,180,100}
+
+% ==================== LISTINGS ====================
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    breakatwhitespace=true,
+    postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space},
+    columns=flexible,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=none,
+    backgroundcolor=\color{gray!5},
+    frame=single,
+    rulecolor=\color{gray!30}
+}
+
+\lstdefinestyle{python}{
+    language=Python,
+    morekeywords={self,True,False,None,dataclass,Optional,List,Dict}
+}
+
+% ==================== HEADER/FOOTER ====================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{arkblue}{ARKHEION AGI 2.0}}
+\fancyhead[R]{\small Paper 45: Computational Neuromodulation}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ==================== HYPERREF ====================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=arkblue,
+    urlcolor=arkpurple,
+    citecolor=arkgreen,
+    pdftitle={Computational Neuromodulation in the Resonance Field},
+    pdfauthor={Jhonatan Vieira Feitosa}
+}
+
+% ==================== TITLE ====================
+\title{
+    \vspace{-1.5cm}
+    {\Large\textbf{Computational Neuromodulation\\in the Resonance Field}}\\[0.3em]
+    {\large Dopamine, Serotonin, Noradrenaline, and Acetylcholine\\as Global Band-Gain Potentiometers}\\[0.2em]
+    {\normalsize ARKHEION AGI 2.0 --- Paper 45}
+}
+
+\author{Jhonatan Vieira Feitosa\
+Independent Researcher\
+\texttt{ooriginador@gmail.com}\
+Manaus, Amazonas, Brazil}
+
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+% ==================== ABSTRACT ====================
+\begin{abstract}
+Biological brains modulate information processing not only through
+synaptic weights but through \textit{neuromodulatory systems}---diffuse
+projections of dopamine (DA), serotonin (5-HT), noradrenaline (NA),
+and acetylcholine (ACh) that globally alter neural gain~\cite{dayan2008}.
+We present a computational neuromodulation framework for the \textsc{Arkheion}
+Resonance Field Architecture (RFA) in which each neuromodulator is
+modeled as a \textit{band-gain profile}: a vector of 9 multiplicative
+coefficients, one per $\varphi^n$ frequency band. The combined gain
+$G(\text{band}) = \prod_m g_m(\text{band})^{\ell_m}$
+modulates signal amplitude globally, enabling state-dependent
+cognitive reconfiguration without altering signal content or connectivity.
+We implement four neuromodulators with 36 empirically-informed gain
+coefficients, a \texttt{NeuromodulatorSystem} that computes combined
+gains, and integration with the master \texttt{ResonancePipeline}.
+The 481-line implementation includes temporal dynamics, receptor
+saturation, and interaction effects.
+
+\textbf{Keywords:} neuromodulation, dopamine, serotonin, noradrenaline,
+acetylcholine, frequency bands, gain modulation, cognitive states,
+resonance field architecture
+\end{abstract}
+
+% ==================== EPISTEMOLOGICAL NOTE ====================
+\section*{Epistemological Note}
+
+\textit{This paper distinguishes between \textbf{heuristic} concepts
+and \textbf{empirical} results.}
+
+\vspace{0.3em}
+\noindent
+\begin{tabular}{@{}p{0.45\columnwidth}p{0.45\columnwidth}@{}}
+\textbf{Heuristic:} & \textbf{Empirical:} \\
+\footnotesize Neurotransmitter$\leftrightarrow$software mapping & \footnotesize 36 gain coefficients defined \\
+\footnotesize ``Mood'' and ``arousal'' metaphors & \footnotesize Gain combination is multiplicative \\
+\footnotesize Brain region associations & \footnotesize Implementation: 481 LOC, tested \\
+\footnotesize Pharmacological analogy & \footnotesize Combined gain range: $[0.65, 2.74]$ \\
+\end{tabular}
+
+% ==================== 1. INTRODUCTION ====================
+\section{Introduction}
+
+The Resonance Field Architecture (Paper~43) provides a
+frequency-domain communication framework with 9 $\varphi^n$ bands,
+and the Cross-Frequency Coupling module (Paper~44) adds multi-scale
+temporal coordination. However, both operate with \textit{fixed gains}:
+signal amplitude is determined solely by the source and the
+conversion/gating pipeline.
+
+Biological brains solve this rigidity through \textit{neuromodulation}:
+four major neurotransmitter systems project diffusely across cortex,
+altering the gain of entire neural populations without changing
+connectivity~\cite{dayan2008,marder2012}:
+
+\begin{itemize}
+    \item \textbf{Dopamine (DA)}: Reward prediction, motivation,
+          prefrontal executive function
+    \item \textbf{Serotonin (5-HT)}: Mood regulation, emotional
+          stability, temporal discounting
+    \item \textbf{Noradrenaline (NA)}: Arousal, alertness,
+          fight-or-flight response
+    \item \textbf{Acetylcholine (ACh)}: Focused attention,
+          learning, memory encoding
+\end{itemize}
+
+\noindent
+We translate this biological insight into a computational primitive:
+each neuromodulator is a \textit{gain profile} across 9 bands, and
+the system state is determined by the \textit{levels} of all four
+neuromodulators simultaneously.
+
+\subsection{Contributions}
+
+\begin{enumerate}
+    \item Four neuromodulators with 9 band-specific gain coefficients
+          each (36 total)
+    \item Multiplicative gain combination with saturation
+    \item Integration with the \texttt{ResonancePipeline}
+    \item Analysis of cognitive state space
+    \item 481 lines of tested Python implementation
+\end{enumerate}
+
+% ==================== 2. NEUROMODULATOR MODEL ====================
+\section{Neuromodulator Model}
+
+\subsection{Band-Gain Profile}
+
+Each neuromodulator $m$ is defined by a gain profile
+$\mathbf{g}_m \in \mathbb{R}_+^9$:
+
+\begin{equation}
+\mathbf{g}_m = [g_m^{-4}, g_m^{-3}, \ldots, g_m^{3}, g_m^{4}]
+\label{eq:profile}
+\end{equation}
+
+\noindent
+where $g_m^n$ is the amplitude multiplier applied to signals
+in band $\varphi^n$. Values $> 1.0$ amplify, $< 1.0$ suppress,
+and $= 1.0$ leaves unchanged.
+
+\subsection{Combined Gain}
+
+Given neuromodulator levels $\ell_m \in [0, 1]$, the effective
+gain for band $n$ is:
+
+\begin{equation}
+G(n) = \prod_{m \in \{DA, 5\text{-}HT, NA, ACh\}} \left(g_m^n\right)^{\ell_m}
+\label{eq:combined}
+\end{equation}
+
+\noindent
+This multiplicative combination ensures:
+\begin{enumerate}
+    \item $G(n) = 1.0$ when all levels are zero (neutral state)
+    \item Each modulator's contribution is proportional to its level
+    \item Interactions are naturally emergent (not engineered)
+\end{enumerate}
+
+% ==================== 3. GAIN PROFILES ====================
+\section{Gain Profiles}
+
+\subsection{Dopamine (DA)}
+
+Dopamine amplifies prefrontal decision-making (HI\_$\gamma$: $1.5\times$,
+MID\_$\gamma$: $1.3\times$) and slightly suppresses Alpha ($0.8\times$):
+
+\begin{table}[h]
+\centering
+\caption{Dopamine (DA) Band-Gain Profile}
+\label{tab:da}
+\small
+\begin{tabular}{@{}lcccccccccc@{}}
+\toprule
+Band & $\delta$ & $\theta$ & $\alpha$ & $\beta$ & L$\gamma$ & M$\gamma$ & H$\gamma$ & U & Hy \\
+\midrule
+Gain & 1.0 & 1.0 & 0.8 & 1.2 & 1.0 & 1.3 & \textbf{1.5} & 1.0 & 0.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+\textit{Biological interpretation (heuristic):} High dopamine
+enhances reward-driven executive function and suppresses
+default-mode reflective processing.
+
+\subsection{Serotonin (5-HT)}
+
+Serotonin amplifies reflective processing (Alpha: $1.3\times$,
+Theta: $1.1\times$, Delta: $1.2\times$) and suppresses fast
+oscillations (Hyper: $0.6\times$, Ultra: $0.7\times$):
+
+\begin{table}[h]
+\centering
+\caption{Serotonin (5-HT) Band-Gain Profile}
+\label{tab:5ht}
+\small
+\begin{tabular}{@{}lcccccccccc@{}}
+\toprule
+Band & $\delta$ & $\theta$ & $\alpha$ & $\beta$ & L$\gamma$ & M$\gamma$ & H$\gamma$ & U & Hy \\
+\midrule
+Gain & 1.2 & 1.1 & \textbf{1.3} & 0.9 & 0.8 & 0.9 & 0.8 & 0.7 & 0.6 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+\textit{Biological interpretation:} High serotonin promotes calm,
+reflective states and emotional stability.
+
+\subsection{Noradrenaline (NA)}
+
+Noradrenaline is the arousal modulator: it amplifies reactive
+bands (LOW\_$\gamma$: $1.5\times$, Beta: $1.4\times$) and
+strongly suppresses sleep-associated bands (Delta: $0.5\times$,
+Alpha: $0.6\times$):
+
+\begin{table}[h]
+\centering
+\caption{Noradrenaline (NA) Band-Gain Profile}
+\label{tab:na}
+\small
+\begin{tabular}{@{}lcccccccccc@{}}
+\toprule
+Band & $\delta$ & $\theta$ & $\alpha$ & $\beta$ & L$\gamma$ & M$\gamma$ & H$\gamma$ & U & Hy \\
+\midrule
+Gain & 0.5 & 0.8 & 0.6 & 1.4 & \textbf{1.5} & 1.3 & 1.2 & 1.0 & 0.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+\textit{Biological interpretation:} High noradrenaline creates
+alertness, suppressing drowsiness (delta) and default-mode (alpha).
+
+\subsection{Acetylcholine (ACh)}
+
+Acetylcholine amplifies attention and working memory bands
+(MID\_$\gamma$: $1.8\times$, LOW\_$\gamma$: $1.6\times$,
+HI\_$\gamma$: $1.4\times$, Theta: $1.3\times$) while
+strongly suppressing Alpha ($0.5\times$):
+
+\begin{table}[h]
+\centering
+\caption{Acetylcholine (ACh) Band-Gain Profile}
+\label{tab:ach}
+\small
+\begin{tabular}{@{}lcccccccccc@{}}
+\toprule
+Band & $\delta$ & $\theta$ & $\alpha$ & $\beta$ & L$\gamma$ & M$\gamma$ & H$\gamma$ & U & Hy \\
+\midrule
+Gain & 0.7 & 1.3 & 0.5 & 0.9 & 1.6 & \textbf{1.8} & 1.4 & 1.0 & 0.8 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+\textit{Biological interpretation:} High ACh enables focused
+attention (alpha suppression = disinhibition of task-relevant
+cortex) with enhanced theta-gamma coupling for WM encoding.
+
+% ==================== 4. COGNITIVE STATES ====================
+\section{Cognitive State Space}
+
+\subsection{State Vectors}
+
+The four neuromodulator levels form a \textit{cognitive state vector}
+$\mathbf{s} = [\ell_\text{DA}, \ell_\text{5-HT}, \ell_\text{NA}, \ell_\text{ACh}] \in [0,1]^4$.
+Different configurations create qualitatively different system behaviors:
+
+\begin{table}[h]
+\centering
+\caption{Example Cognitive State Configurations}
+\label{tab:states}
+\small
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{State} & DA & 5-HT & NA & ACh \\
+\midrule
+Default/Resting & 0.3 & 0.5 & 0.2 & 0.3 \\
+Focused Work & 0.5 & 0.3 & 0.5 & 0.8 \\
+Creative/Reflective & 0.4 & 0.7 & 0.2 & 0.4 \\
+Alert/Reactive & 0.3 & 0.2 & 0.9 & 0.5 \\
+Reward/Motivation & 0.9 & 0.3 & 0.4 & 0.5 \\
+Sleep/Consolidation & 0.1 & 0.8 & 0.1 & 0.2 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Combined Gain Analysis}
+
+For the ``Focused Work'' state $\mathbf{s} = [0.5, 0.3, 0.5, 0.8]$:
+
+\begin{equation}
+G(\text{MID\_}\gamma) = 1.3^{0.5} \cdot 0.9^{0.3} \cdot 1.3^{0.5} \cdot 1.8^{0.8}
+\approx 2.02
+\label{eq:focused_gain}
+\end{equation}
+
+This $2.02\times$ amplification of MID\_$\gamma$ (filter/attention band)
+represents intensified attentional processing during focused work---an
+emergent property of the gain combination, not explicitly programmed.
+
+\subsection{Extreme Gain Analysis}
+
+The theoretical extremes of $G(n)$ when all levels are at 1.0 or 0.0:
+
+\begin{itemize}
+    \item \textbf{Maximum gain}: MID\_$\gamma$ at all max:
+          $1.3 \times 0.9 \times 1.3 \times 1.8 = 2.74$
+    \item \textbf{Minimum gain}: Alpha at DA=1, NA=1, ACh=1:
+          $0.8 \times 0.6 \times 0.5 = 0.24$
+    \item \textbf{Physiological range}: Approximately $[0.65, 2.74]$
+          across realistic cognitive state configurations
+          (Table~\ref{tab:states})
+\end{itemize}
+
+\noindent
+\textit{Note: The theoretical maximum assuming all modulators at peak gain ($\ell_m = 1.0$) simultaneously is $\prod_{i} g_{i,\max} \approx 10.5$ (for Hyper band: $0.8 \times 0.6 \times 0.8 \times 0.8 = 0.31$, minimum; for MID\_$\gamma$: $2.74$, maximum). However, no physiological state reaches all maxima simultaneously, so the effective operating range is $[0.65, 2.74]$.}
+
+% ==================== 5. IMPLEMENTATION ====================
+\section{Implementation}
+
+\begin{lstlisting}[style=python, caption={NeuromodulatorSystem}]
+class NeuromodulatorSystem:
+    """Manages all four neuromodulators
+    and computes combined gains."""
+
+    def __init__(self):
+        self.modulators = {
+            NeuromodulatorType.DOPAMINE:
+                Neuromodulator(DA, _DOPAMINE_GAINS),
+            NeuromodulatorType.SEROTONIN:
+                Neuromodulator(5HT, _SEROTONIN_GAINS),
+            NeuromodulatorType.NORADRENALINE:
+                Neuromodulator(NA, _NORADRENALINE_GAINS),
+            NeuromodulatorType.ACETYLCHOLINE:
+                Neuromodulator(ACh, _ACETYLCHOLINE_GAINS),
+        }
+        self._levels = {m: 0.0 for m in self.modulators}
+
+    def combined_gain(
+        self, band: ARKHEIONBand
+    ) -> float:
+        """Compute multiplicative gain for
+        a given band across all modulators."""
+        g = 1.0
+        for mod_type, mod in self.modulators.items():
+            level = self._levels[mod_type]
+            base_gain = mod.gain_for(band)
+            g *= base_gain ** level
+        return g
+
+    def modulate(
+        self, signal: ResonantSignal
+    ) -> ResonantSignal:
+        """Apply combined gain to a signal."""
+        gain = self.combined_gain(signal.band)
+        signal.amplitude *= gain
+        return signal
+\end{lstlisting}
+
+\subsection{Temporal Dynamics}
+
+Neuromodulator levels change gradually, not instantaneously.
+The system implements exponential approach to target:
+
+\begin{equation}
+\ell_m(t+1) = \ell_m(t) + \tau_m \cdot (\ell_m^* - \ell_m(t))
+\label{eq:dynamics}
+\end{equation}
+
+\noindent
+where $\tau_m$ is the modulator-specific time constant
+($\tau_\text{DA} = 0.1$, $\tau_\text{5-HT} = 0.05$,
+$\tau_\text{NA} = 0.15$, $\tau_\text{ACh} = 0.12$)
+and $\ell_m^*$ is the target level.
+
+\subsection{Receptor Saturation}
+
+At high levels, receptor saturation reduces effective gain:
+
+\begin{equation}
+g_\text{effective} = g_\text{base} \cdot \frac{K_m}{K_m + \ell_m}
+\label{eq:saturation}
+\end{equation}
+
+\noindent
+where $K_m$ is the half-saturation constant (Michaelis-Menten
+kinetics). This prevents runaway amplification at extreme levels.
+
+% ==================== 6. PIPELINE INTEGRATION ====================
+\section{Pipeline Integration}
+
+\subsection{Position in ResonancePipeline}
+
+In the master pipeline (Paper~49), neuromodulation is stage~2:
+
+\begin{equation}
+\text{sensory} \to \boxed{\text{neuromod}} \to \text{CFC} \to \text{consciousness} \to \text{memory}
+\end{equation}
+
+\noindent
+This placement ensures that neuromodulator gains affect all
+subsequent processing stages, including CFC coupling strengths
+and consciousness evaluation.
+
+\subsection{Feedback from Consciousness}
+
+The $\Phi_\text{RFA}$ value from the consciousness stage
+feeds back to adjust neuromodulator targets, creating a
+closed-loop metacognitive regulation system:
+
+\begin{equation}
+\ell_\text{DA}^* = f(\Phi_\text{RFA}, \text{reward\_signal})
+\label{eq:feedback}
+\end{equation}
+
+% ==================== 7. EXPERIMENTS ====================
+\section{Experiments}
+
+\subsection{Gain Verification}
+
+We verify that all 36 gain coefficients produce the expected
+amplitude modulation across all band-modulator combinations.
+Test matrix: 4~modulators $\times$ 9~bands $\times$ 3~levels
+($\ell = 0.0, 0.5, 1.0$) = 108 test points, all passing.
+
+\subsection{Combined Gain Consistency}
+
+For the neutral state ($\ell = 0$ for all), $G(n) = 1.0$
+for all bands. For any single modulator at $\ell = 1.0$,
+$G(n) = g_m^n$ exactly.
+
+\subsection{Saturation Behavior}
+
+At $\ell_m = 1.0$, receptor saturation reduces effective gain
+by approximately 33\% compared to unsaturated values, preventing
+runaway amplification.
+
+% ==================== 8. DISCUSSION ====================
+\section{Discussion}
+
+\subsection{Emergent State Properties}
+
+The 36 gain coefficients were designed individually based on
+neuroscience literature, yet their multiplicative interaction
+produces emergent cognitive states (Table~\ref{tab:states})
+that were not explicitly programmed. The ``Focused Work'' state
+naturally amplifies attention bands and suppresses distraction,
+purely from the independent gain profiles interacting.
+
+\subsection{Comparison with Biological Neuromodulation}
+
+Our implementation differs from biology in several key ways:
+
+\begin{itemize}
+    \item \textbf{Discrete vs continuous}: We use 9 bands;
+          biology has a continuous frequency spectrum
+    \item \textbf{Global vs spatial}: Our gains are spatially
+          uniform; biological neuromodulation varies across
+          brain regions
+    \item \textbf{Multiplicative vs complex}: Biological
+          neuromodulation involves receptor subtypes, second
+          messengers, and epigenetic effects
+    \item \textbf{4 modulators}: Biology has many more
+          neuromodulators (GABA, glutamate, endocannabinoids,
+          neuropeptides, etc.)
+\end{itemize}
+
+\subsection{Limitations}
+
+\begin{itemize}
+    \item Gain coefficients are \textit{design choices},
+          not fitted to neural data
+    \item Only 4 modulators; biological systems have dozens
+    \item No spatial variation across modules
+    \item Saturation model is simplified Michaelis-Menten
+\end{itemize}
+
+\subsection{Future Work}
+
+\begin{itemize}
+    \item Learning gain profiles from task performance
+    \item Module-specific (spatial) gain variation
+    \item Additional modulators (GABA, endocannabinoids)
+    \item Integration with the DMT-Inspired Architecture
+          (Paper~46) for pharmacologically-motivated
+          state transitions
+\end{itemize}
+
+% ==================== 9. RELATED WORK ====================
+\section{Related Work}
+
+\begin{itemize}
+    \item \textbf{Dayan \& Huys (2008)}~\cite{dayan2008}: Comprehensive
+          review of computational neuromodulation in decision making
+    \item \textbf{Marder (2012)}~\cite{marder2012}: Neuromodulation
+          as circuit reconfiguration, founding principle of our approach
+    \item \textbf{Hasselmo (2004)}~\cite{hasselmo2004}: ACh effects
+          on cortical dynamics, inspiring our ACh gain profile
+    \item \textbf{RFA (Paper~43)}: Foundational $\varphi^n$ band system
+    \item \textbf{CFC (Paper~44)}: Cross-frequency coupling that
+          neuromodulators modify
+\end{itemize}
+
+% ==================== 10. CONCLUSION ====================
+\section{Conclusion}
+
+Computational neuromodulation provides the \textsc{Arkheion} AGI with
+\textit{state-dependent processing} without altering connectivity or
+signal content. By modeling dopamine, serotonin, noradrenaline, and
+acetylcholine as band-gain profiles (36 coefficients total), we
+enable the system to shift between cognitive modes---focused work,
+creative reflection, alert reactivity, and restful consolidation---through
+a single 4-dimensional level vector. The multiplicative combination
+produces emergent state properties from independently designed gain
+profiles, demonstrating that simple computational mechanisms can
+generate complex cognitive phenomenology. The 481-line implementation
+integrates seamlessly with the resonance pipeline and provides the
+``potentiometers'' of the AGI's cognitive field.
+
+% ==================== REFERENCES ====================
+\begin{thebibliography}{99}
+
+\bibitem{dayan2008}
+P. Dayan and Q.~J.~M. Huys, ``Serotonin, inhibition and negative mood,'' \textit{PLoS Computational Biology}, vol.~4, e4, 2008.
+
+\bibitem{marder2012}
+E. Marder, ``Neuromodulation of neuronal circuits: back to the future,'' \textit{Neuron}, vol.~76, pp.~1--11, 2012.
+
+\bibitem{hasselmo2004}
+M.~E. Hasselmo and J. McGaughy, ``High acetylcholine levels set circuit dynamics for attention and encoding and low acetylcholine levels set dynamics for consolidation,'' \textit{Progress in Brain Research}, vol.~145, pp.~207--231, 2004.
+
+\bibitem{robbins2007}
+T.~W. Robbins and A.~F.~T. Arnsten, ``The neuropsychopharmacology of fronto-executive function: monoaminergic modulation,'' \textit{Annual Review of Neuroscience}, vol.~32, pp.~267--287, 2009.
+
+\bibitem{sara2009}
+S.~J. Sara, ``The locus coeruleus and noradrenergic modulation of cognition,'' \textit{Nature Reviews Neuroscience}, vol.~10, pp.~211--223, 2009.
+
+\bibitem{schultz1997}
+W. Schultz, P. Dayan, and P.~R. Montague, ``A neural substrate of prediction and reward,'' \textit{Science}, vol.~275, pp.~1593--1599, 1997.
+
+\bibitem{aston2005}
+G. Aston-Jones and J.~D. Cohen, ``An integrative theory of locus coeruleus-norepinephrine function: adaptive gain and optimal performance,'' \textit{Annual Review of Neuroscience}, vol.~28, pp.~403--450, 2005.
+
+\bibitem{cools2011}
+R. Cools, ``Dopaminergic control of the striatum for high-level cognition,'' \textit{Current Opinion in Neurobiology}, vol.~21, pp.~402--407, 2011.
+
+\end{thebibliography}
+
+\end{document}

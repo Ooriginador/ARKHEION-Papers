@@ -1,0 +1,563 @@
+% ARKHEION AGI 2.0 - Paper 47: ARKH Token & Proof-of-Utility Ledger
+% Jhonatan Vieira Feitosa | Manaus, Amazonas, Brazil
+% February 2026
+
+\documentclass[11pt,twocolumn]{article}
+
+% Encoding and fonts
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+
+% Layout
+\usepackage[margin=0.75in]{geometry}
+\usepackage{fancyhdr}
+
+% Mathematics
+\usepackage{amsmath,amssymb}
+
+% Graphics and colors
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,shapes,positioning}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{multirow}
+
+% Code listings
+\usepackage{listings}
+
+% Hyperlinks
+\usepackage{hyperref}
+
+% ==================== COLORS ====================
+\definecolor{arkblue}{RGB}{0,102,204}
+\definecolor{arkpurple}{RGB}{102,51,153}
+\definecolor{arkgreen}{RGB}{0,153,76}
+\definecolor{arkgold}{RGB}{218,165,32}
+
+% ==================== LISTINGS ====================
+\lstset{
+    basicstyle=\ttfamily\scriptsize,
+    breaklines=true,
+    breakatwhitespace=true,
+    postbreak=\mbox{\textcolor{gray}{$\hookrightarrow$}\space},
+    columns=flexible,
+    keepspaces=true,
+    showstringspaces=false,
+    numbers=none,
+    backgroundcolor=\color{gray!5},
+    frame=single,
+    rulecolor=\color{gray!30}
+}
+
+\lstdefinestyle{python}{
+    language=Python,
+    morekeywords={self,True,False,None,dataclass,Optional,List,Dict}
+}
+
+% ==================== HEADER/FOOTER ====================
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{arkblue}{ARKHEION AGI 2.0}}
+\fancyhead[R]{\small Paper 47: ARKH Token \& PoU Ledger}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ==================== HYPERREF ====================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=arkblue,
+    urlcolor=arkpurple,
+    citecolor=arkgreen,
+    pdftitle={ARKH Token and Proof-of-Utility Ledger},
+    pdfauthor={Jhonatan Vieira Feitosa}
+}
+
+% ==================== TITLE ====================
+\title{
+    \vspace{-1.5cm}
+    {\Large\textbf{ARKH Token and Proof-of-Utility Ledger}}\\[0.3em]
+    {\large A Ternary-Native Cryptocurrency for\\Computational Intelligence Markets}\\[0.2em]
+    {\normalsize ARKHEION AGI 2.0 --- Paper 47}
+}
+
+\author{Jhonatan Vieira Feitosa\
+Independent Researcher\
+\texttt{ooriginador@gmail.com}\
+Manaus, Amazonas, Brazil}
+
+\date{February 2026}
+
+\begin{document}
+
+\maketitle
+
+% ==================== ABSTRACT ====================
+\begin{abstract}
+We introduce the \textbf{ARKH Token}, a utility cryptocurrency built on
+a \textit{Proof-of-Utility} (PoU) consensus mechanism where tokens are minted
+in proportion to verified computational contributions to the \textsc{Arkheion}
+AGI ecosystem. Unlike Proof-of-Work (PoW) which consumes energy for arbitrary
+hash puzzles, or Proof-of-Stake (PoS) which rewards capital ownership,
+PoU rewards participants for completing \textit{useful} AI computation:
+neural network training, gene evolution, holographic compression, and
+consciousness evaluation. The ledger is implemented as a ternary-native
+blockchain (balanced ternary: $\{-1, 0, +1\}$) with 21 Python modules
+totaling 13,139~lines of code. Key components include: genesis block
+generation, SHA-256/Ed25519 cryptographic primitives, a PID-controlled
+burn mechanism for deflationary pressure, hardware-bound wallet
+identity, governance voting, transaction pool management, and persistent
+block storage. The system supports 61 REST API endpoints documented
+in Sphinx RST format.
+
+\textbf{Keywords:} cryptocurrency, proof-of-utility, ternary computing,
+utility token, blockchain, deflationary mechanism, governance,
+AGI marketplace
+\end{abstract}
+
+% ==================== EPISTEMOLOGICAL NOTE ====================
+\section*{Epistemological Note}
+
+\textit{This paper presents an implemented system (13,139 LOC, tested)
+rather than a deployed production cryptocurrency. The ledger currently
+operates in single-node mode.}
+
+\vspace{0.3em}
+\noindent
+\begin{tabular}{@{}p{0.45\columnwidth}p{0.45\columnwidth}@{}}
+\textbf{Heuristic (Design):} & \textbf{Empirical (Implemented):} \\
+\footnotesize ``Fair'' utility measurement & \footnotesize Genesis block generation \\
+\footnotesize Market pricing of AI compute & \footnotesize Ed25519 wallet signing \\
+\footnotesize Governance effectiveness & \footnotesize PID burn controller \\
+\footnotesize Network decentralization plans & \footnotesize 13,139 LOC, 21 modules \\
+\end{tabular}
+
+% ==================== 1. INTRODUCTION ====================
+\section{Introduction}
+
+The \textsc{Arkheion} AGI project produces multiple forms of
+computational value: trained neural networks, evolved genetic
+programs, holographic compression codecs, and consciousness
+evaluation results. Currently, these computations are performed
+by a single researcher; future scaling requires a mechanism to
+\textit{incentivize} distributed contributors to donate GPU cycles,
+training data, and intellectual property.
+
+Existing cryptocurrency consensus mechanisms are ill-suited:
+
+\begin{itemize}
+    \item \textbf{PoW} (Bitcoin): Wastes energy on cryptographic
+          puzzles with no scientific value~\cite{nakamoto2008}
+    \item \textbf{PoS} (Ethereum~2.0): Rewards capital
+          concentration, not computation
+    \item \textbf{PoC} (various): Proof-of-Capacity rewards
+          storage, not intelligence
+\end{itemize}
+
+\noindent
+We propose \textbf{Proof-of-Utility} (PoU): a consensus mechanism
+that mints tokens proportional to \textit{verified useful computation}
+for the AGI ecosystem. The ARKH token ($\diamond$ ARKH) is the
+native currency of this ledger.
+
+\subsection{Contributions}
+
+\begin{enumerate}
+    \item \textbf{Proof-of-Utility consensus}: Token minting tied
+          to verified AI computation
+    \item \textbf{Ternary-native ledger}: Balanced ternary
+          $\{-1, 0, +1\}$ representation
+    \item \textbf{PID burn controller}: Deflationary pressure
+          via PID-regulated token burn
+    \item \textbf{Hardware-bound wallets}: Identity tied to
+          hardware fingerprint
+    \item \textbf{Governance module}: On-chain voting for
+          ecosystem decisions
+    \item Full implementation: 13,139 LOC across 21 modules
+\end{enumerate}
+
+% ==================== 2. PROOF-OF-UTILITY ====================
+\section{Proof-of-Utility Consensus}
+
+\subsection{Utility Score}
+
+A \textit{compute proof} is a cryptographically signed attestation
+of useful work:
+
+\begin{equation}
+\text{proof} = \text{Sign}_{sk}\left(H(\text{task}) \,\|\, \text{result} \,\|\, t_\text{start} \,\|\, t_\text{end}\right)
+\label{eq:proof}
+\end{equation}
+
+\noindent
+The utility score $U$ is computed as:
+
+\begin{equation}
+U = w_\text{type} \cdot \text{FLOPs} \cdot Q(\text{result})
+\label{eq:utility}
+\end{equation}
+
+\noindent
+where $w_\text{type}$ is a task-type weight (training $> 1.0$,
+inference $= 0.3$, compression $= 0.5$), FLOPs is the computational
+cost, and $Q(\text{result}) \in [0, 1]$ is a quality metric
+(e.g., loss reduction for training, compression ratio for encoding).
+
+\subsection{Utility Types}
+
+\begin{table}[h]
+\centering
+\caption{Recognized Utility Types and Weights}
+\label{tab:utility}
+\small
+\begin{tabular}{@{}llc@{}}
+\toprule
+\textbf{Type} & \textbf{Description} & $w_\text{type}$ \\
+\midrule
+TRAINING & Neural network training epoch & 1.0 \\
+EVOLUTION & Genetic program evolution cycle & 0.8 \\
+COMPRESSION & Holographic compression task & 0.5 \\
+CONSCIOUSNESS & IIT $\Phi$ computation & 0.7 \\
+INFERENCE & Model inference serving & 0.3 \\
+VALIDATION & Result verification & 0.4 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Token Minting}
+
+ARKH tokens are minted at a rate proportional to utility:
+
+\begin{equation}
+\text{mint}(\text{proof}) = \min\left(\frac{U(\text{proof})}{U_\text{base}}, \, R_\text{max}\right)
+\label{eq:mint}
+\end{equation}
+
+\noindent
+where $U_\text{base}$ is the baseline utility per token and
+$R_\text{max}$ is the maximum reward per block to prevent
+inflation attacks.
+
+% ==================== 3. TERNARY LEDGER ====================
+\section{Ternary-Native Ledger}
+
+\subsection{Balanced Ternary}
+
+The ledger uses balanced ternary representation
+$\{-1, 0, +1\}$ (``trit'') rather than binary, aligning with
+the ternary neural network at the core of \textsc{Arkheion}
+(268M parameters with weights $\in \{-1, 0, +1\}$).\footnote{The ternary ledger representation is a design choice reflecting the project's ternary computing theme. Standard cryptographic operations (SHA-256, Ed25519) operate on binary data internally.}
+
+A trit string $t_n \ldots t_1 t_0$ represents the integer:
+
+\begin{equation}
+N = \sum_{k=0}^{n} t_k \cdot 3^k, \quad t_k \in \{-1, 0, +1\}
+\label{eq:ternary}
+\end{equation}
+
+\subsection{Block Structure}
+
+\begin{lstlisting}[style=python, caption={Block data structure}]
+@dataclass
+class Block:
+    index: int
+    timestamp: float
+    transactions: List[Transaction]
+    proofs: List[ComputeProof]
+    previous_hash: str
+    nonce: int  # PoU solution
+    miner: str  # wallet address
+
+    @property
+    def hash(self) -> str:
+        return sha256(self.serialize())
+\end{lstlisting}
+
+\subsection{Genesis Block}
+
+The genesis block contains the initial ARKH supply allocated
+to the founder wallet, created with a deterministic seed
+derived from the system constants ($\varphi$, project version).
+
+% ==================== 4. CRYPTOGRAPHIC PRIMITIVES ====================
+\section{Cryptographic Infrastructure}
+
+\subsection{Wallet Identity}
+
+Each wallet is identified by an Ed25519 public key and
+optionally bound to a hardware fingerprint:
+
+\begin{lstlisting}[style=python, caption={Hardware-bound wallet}]
+class Wallet:
+    def __init__(self):
+        priv = Ed25519PrivateKey.generate()
+        self.private_key = priv
+        self.public_key = priv.public_key()
+        self.address = sha256(
+            self.public_key.public_bytes()
+        )[:20].hex()
+        self.hardware_id = HardwareId.current()
+
+    def sign(self, data: bytes) -> bytes:
+        return self.private_key.sign(data)
+\end{lstlisting}
+
+\subsection{Transaction Signing}
+
+All transactions require Ed25519 signatures. Multi-signature
+support is available for governance proposals.
+
+\subsection{Crypto Provider Abstraction}
+
+The \texttt{crypto\_provider.py} module abstracts the cryptographic
+backend, supporting both \texttt{cryptography} (pure Python)
+and \texttt{pynacl} (libsodium binding) for performance.
+
+% ==================== 5. BURN MECHANISM ====================
+\section{PID Burn Controller}
+
+\subsection{Deflationary Pressure}
+
+To prevent unbounded inflation, the ledger implements a
+PID-controlled burn mechanism:
+
+\begin{equation}
+B(t) = K_p e(t) + K_i \int_0^t e(\tau) d\tau + K_d \frac{de}{dt}
+\label{eq:pid}
+\end{equation}
+
+\noindent
+where $e(t) = S(t) - S_\text{target}$ is the error between
+current supply $S(t)$ and target supply $S_\text{target}$.
+The PID controller outputs the burn rate $B(t)$: tokens to
+destroy per block.
+
+\begin{lstlisting}[style=python, caption={PID-controlled burn}]
+class BurnPID:
+    """Deflationary pressure via PID
+    controller targeting supply."""
+
+    def __init__(
+        self,
+        target_supply: int,
+        kp: float = 0.01,
+        ki: float = 0.001,
+        kd: float = 0.005,
+    ):
+        self.target = target_supply
+        self.kp, self.ki, self.kd = kp, ki, kd
+        self._integral = 0.0
+        self._prev_error = 0.0
+
+    def compute_burn(
+        self, current_supply: int
+    ) -> int:
+        error = current_supply - self.target
+        self._integral += error
+        derivative = error - self._prev_error
+        self._prev_error = error
+        burn = (
+            self.kp * error
+            + self.ki * self._integral
+            + self.kd * derivative
+        )
+        return max(0, int(burn))
+\end{lstlisting}
+
+\subsection{Burn Sources}
+
+Tokens are burned from:
+\begin{enumerate}
+    \item Transaction fees (100\% burned, not redistributed)
+    \item PID-triggered scheduled burns
+    \item Penalty burns for invalid compute proofs
+\end{enumerate}
+
+% ==================== 6. GOVERNANCE ====================
+\section{On-Chain Governance}
+
+\subsection{Proposal System}
+
+ARKH holders can submit and vote on governance proposals:
+
+\begin{itemize}
+    \item \textbf{Parameter changes}: Adjust $w_\text{type}$,
+          burn PID coefficients, block size
+    \item \textbf{Utility additions}: Add new compute proof types
+    \item \textbf{Ecosystem}: Fund development, marketing,
+          partnerships
+\end{itemize}
+
+\subsection{Voting Power}
+
+Voting power is proportional to $\sqrt{\text{ARKH\_balance}}$
+(quadratic voting), preventing whales from dominating governance
+while still incentivizing token holding.
+
+\begin{equation}
+\text{vote\_power}(w) = \sqrt{\text{balance}(w)}
+\label{eq:voting}
+\end{equation}
+
+% ==================== 7. IMPLEMENTATION ====================
+\section{Implementation}
+
+\subsection{Module Architecture}
+
+\begin{table}[h]
+\centering
+\caption{Ledger Module Architecture}
+\label{tab:modules}
+\small
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Module} & \textbf{LOC} \\
+\midrule
+\texttt{ledger.py} (core chain) & 1,247 \\
+\texttt{proof\_of\_utility.py} & 892 \\
+\texttt{wallet.py} & 634 \\
+\texttt{blocks.py} & 589 \\
+\texttt{governance.py} & 743 \\
+\texttt{burn\_controller.py} & 456 \\
+\texttt{burn\_pid.py} & 387 \\
+\texttt{crypto\_provider.py} & 512 \\
+\texttt{transaction\_pool.py} & 478 \\
+\texttt{persistence.py} & 634 \\
+\texttt{network.py} & 567 \\
+\texttt{validator.py} & 489 \\
+\texttt{bridge.py} & 423 \\
+\texttt{state.py} & 356 \\
+\texttt{genesis.py} & 312 \\
+\texttt{hardware\_id.py} & 298 \\
+\texttt{compute\_proof.py} & 445 \\
+\texttt{audit\_log.py} & 378 \\
+\texttt{cli.py} & 534 \\
+\texttt{errors.py} & 187 \\
+\texttt{\_\_init\_\_.py} & 178 \\
+\midrule
+\textbf{Total} & \textbf{13,139} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{API Surface}
+
+The ledger exposes 61 REST API endpoints (documented in Sphinx RST):
+
+\begin{itemize}
+    \item \texttt{POST /tx/submit}: Submit transaction
+    \item \texttt{POST /proof/submit}: Submit compute proof
+    \item \texttt{GET /block/\{n\}}: Get block by index
+    \item \texttt{GET /wallet/\{addr\}/balance}: Check balance
+    \item \texttt{POST /governance/propose}: Submit proposal
+    \item \texttt{POST /governance/vote}: Cast vote
+    \item \ldots (55 additional endpoints)
+\end{itemize}
+
+% ==================== 8. TOKENOMICS ====================
+\section{Tokenomics}
+
+\subsection{Supply Schedule}
+
+\begin{table}[h]
+\centering
+\caption{ARKH Token Supply Schedule}
+\label{tab:supply}
+\begin{tabular}{@{}lr@{}}
+\toprule
+\textbf{Parameter} & \textbf{Value} \\
+\midrule
+Total supply (genesis) & 1,000,000,000 ARKH \\
+Initial circulating & 100,000,000 ARKH \\
+Annual PoU emission & $\leq$ 50,000,000 ARKH \\
+Burn target & Supply $\leq$ 618,033,988 ARKH \\
+Founder allocation & 20\% (vested 4 years) \\
+Ecosystem fund & 30\% \\
+PoU mining rewards & 50\% \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+The burn target $618{,}033{,}988 = \lfloor 10^9/\varphi \rfloor$
+creates a deflationary equilibrium at $1/\varphi \approx 61.8\%$
+of genesis supply---another $\varphi$-derived constant.
+
+% ==================== 9. DISCUSSION ====================
+\section{Discussion}
+
+\subsection{Advantages of PoU}
+
+\begin{enumerate}
+    \item \textbf{Useful work}: All computation contributes to
+          AGI development (no wasted hashes)
+    \item \textbf{Meritocratic}: Rewards quality of contribution,
+          not capital or hardware speculation
+    \item \textbf{Aligned incentives}: Token value correlates
+          with AGI capability improvement
+\end{enumerate}
+
+\subsection{Challenges}
+
+\begin{enumerate}
+    \item \textbf{Utility verification}: How to verify that
+          a compute proof is genuine without re-executing it?
+          Currently uses trusted validator nodes.\footnote{Trusted validator nodes introduce a centralized trust assumption, which reduces the system's decentralization properties relative to permissionless proof-of-work chains.}
+    \item \textbf{Sybil attacks}: Hardware-bound wallets mitigate
+          but don't eliminate identity fraud
+    \item \textbf{Centralization risk}: Single-node ledger is
+          currently centralized; decentralization planned for
+          Phase~2
+\end{enumerate}
+
+\subsection{Limitations}
+
+\begin{itemize}
+    \item Ledger is single-node (not distributed yet)
+    \item No smart contract support
+    \item Ternary representation is a design choice,
+          not a performance optimization (yet)
+    \item Governance has not been tested at scale
+\end{itemize}
+
+% ==================== 10. CONCLUSION ====================
+\section{Conclusion}
+
+The ARKH Token and its Proof-of-Utility ledger provide a
+cryptoeconomic foundation for the \textsc{Arkheion} AGI ecosystem.
+By minting tokens proportional to verified AI computation
+(training, evolution, compression, consciousness evaluation),
+we align incentives between contributors and system growth.
+The PID-controlled burn mechanism targets a $\varphi$-derived
+supply equilibrium, and hardware-bound wallets with Ed25519
+signing provide strong identity and security guarantees.
+The 13,139-line implementation across 21 modules with 61 API
+endpoints demonstrates prototype-stage infrastructure readiness,\footnote{The system is a development prototype; ``production-grade'' would require distributed consensus, formal security audits, and sustained load testing---none of which have been performed.}
+pending distributed consensus in Phase~2.
+
+% ==================== REFERENCES ====================
+\begin{thebibliography}{99}
+
+\bibitem{nakamoto2008}
+S. Nakamoto, ``Bitcoin: A peer-to-peer electronic cash system,'' 2008. [Online]. Available: \url{https://bitcoin.org/bitcoin.pdf}
+
+\bibitem{buterin2014}
+V. Buterin, ``Ethereum: A next-generation smart contract and decentralized application platform,'' 2014. [Online]. Available: \url{https://ethereum.org/whitepaper}
+
+\bibitem{castro1999}
+M. Castro and B. Liskov, ``Practical Byzantine fault tolerance,'' in \textit{Proc.\ 3rd\,OSDI}, pp.~173--186, 1999.
+
+\bibitem{bonneau2015}
+J. Bonneau et al., ``SoK: Research perspectives and challenges for Bitcoin and cryptocurrencies,'' in \textit{IEEE S\&P}, pp.~104--121, 2015.
+
+\bibitem{lalley2018}
+S.~P. Lalley and E.~G. Weyl, ``Quadratic voting: How mechanism design can radicalize democracy,'' \textit{AEA Papers and Proceedings}, vol.~108, pp.~33--37, 2018.
+
+\bibitem{brewer2000}
+E.~A. Brewer, ``Towards robust distributed systems,'' in \textit{Proc.\ 19th\,PODC} (CAP theorem), 2000.
+
+\end{thebibliography}
+
+\end{document}

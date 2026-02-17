@@ -1,0 +1,369 @@
+%% ARKHEION AGI 2.0 - PAPER TEMPLATE
+%% ==================================
+%%
+%% Template padrão para todos os papers da árvore ARKHEION
+%% Autor: Jhonatan Vieira Feitosa | Manaus-AM, Brasil
+%%
+%% Compilar: pdflatex paper.tex
+%%
+
+\documentclass[11pt,twocolumn]{article}
+
+% ============================================================================
+% PACKAGES
+% ============================================================================
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{listings}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage{multirow}
+\usepackage{array}
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,positioning,calc,patterns,decorations.pathreplacing,fit,backgrounds}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ============================================================================
+% ARKHEION COLOR SCHEME
+% ============================================================================
+\definecolor{arkheion-blue}{RGB}{0,100,200}
+\definecolor{arkheion-purple}{RGB}{128,0,128}
+\definecolor{arkheion-gold}{RGB}{255,193,37}
+\definecolor{arkheion-green}{RGB}{0,150,0}
+\definecolor{arkheion-red}{RGB}{200,50,50}
+\definecolor{code-bg}{RGB}{245,245,245}
+\definecolor{code-comment}{RGB}{0,128,0}
+\definecolor{code-keyword}{RGB}{0,0,200}
+\definecolor{code-string}{RGB}{163,21,21}
+
+% ============================================================================
+% CODE LISTINGS
+% ============================================================================
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{code-keyword}\bfseries,
+    commentstyle=\color{code-comment},
+    stringstyle=\color{code-string},
+    backgroundcolor=\color{code-bg},
+    numbers=left,
+    numberstyle=\tiny\color{gray},
+    breaklines=true,
+    frame=single,
+    framesep=3pt,
+    xleftmargin=15pt,
+    xrightmargin=5pt,
+    tabsize=4,
+    showstringspaces=false,
+    captionpos=b
+}
+
+\lstdefinestyle{python}{
+    language=Python,
+    morekeywords={self,True,False,None,async,await,dataclass,Optional}
+}
+
+\lstdefinestyle{cpp}{
+    language=C++,
+    morekeywords={override,final,nullptr,constexpr,noexcept,auto}
+}
+
+% ============================================================================
+% CUSTOM COMMANDS
+% ============================================================================
+% Mathematical symbols
+\newcommand{\phi}{\varphi}
+\newcommand{\Phi}{\Phi}
+\newcommand{\goldenratio}{1.618033988749895}
+\newcommand{\goldenangle}{137.50776405003785}
+
+% Paper-specific
+\newcommand{\arkheion}{\textsc{Arkheion}}
+\newcommand{\huam}{\textsc{HUAM}}
+\newcommand{\nucleus}{\textsc{Nucleus}}
+\newcommand{\iit}{\textsc{IIT}}
+
+% Boxes
+\newcommand{\keypoint}[1]{\colorbox{arkheion-gold!20}{\parbox{0.9\columnwidth}{\textbf{Key Point:} #1}}}
+\newcommand{\warning}[1]{\colorbox{arkheion-red!20}{\parbox{0.9\columnwidth}{\textbf{Warning:} #1}}}
+
+% ============================================================================
+% TITLE CONFIGURATION
+% ============================================================================
+\hypersetup{
+    colorlinks=true,
+    linkcolor=arkheion-blue,
+    urlcolor=arkheion-purple,
+    citecolor=arkheion-green,
+    pdftitle={ARKHEION AGI Paper},
+    pdfauthor={Jhonatan Vieira Feitosa}
+}
+
+% ============================================================================
+% DOCUMENT
+% ============================================================================
+\begin{document}
+
+% --- TITLE ---
+\title{\textbf{[PAPER TITLE]}}
+
+\author{
+    \textbf{Jhonatan Vieira Feitosa} \\
+    Independent Researcher \\
+    Manaus, Amazonas, Brazil \\
+    \texttt{jhonatan@arkheion.ai} \\
+    \\
+    \textit{ARKHEION AGI Research} \\
+    \textit{Quantum Computing \& Consciousness Laboratory}
+}
+
+\date{January 2026 --- Version 1.0}
+
+\maketitle
+
+% --- ABSTRACT ---
+\begin{abstract}
+[150-250 palavras descrevendo o problema, metodologia, resultados principais e conclusões]
+
+\textbf{Keywords:} keyword1, keyword2, keyword3, keyword4, keyword5
+\end{abstract}
+
+% ============================================================================
+\section*{Epistemological Note}
+% ============================================================================
+
+\textit{This paper distinguishes between \textbf{heuristic} concepts (metaphors guiding design)
+and \textbf{empirical} results (measurable outcomes). Heuristic terms like ``holographic'' or
+``quantum-inspired'' serve as conceptual frameworks---visual transcriptions of the author's
+mental models---not claims of literal physics. All performance claims are backed by
+reproducible benchmarks.}
+
+\vspace{0.3em}
+\begin{tabular}{@{}p{0.45\columnwidth}p{0.45\columnwidth}@{}}
+\textbf{Heuristic (Conceptual):} & \textbf{Empirical (Measured):} \\
+\footnotesize [List metaphors used] & \footnotesize [List actual metrics] \\
+\end{tabular}
+
+% ============================================================================
+\section{Introduction}
+% ============================================================================
+
+[Introdução ao problema, motivação, e contribuições do paper]
+
+\subsection{Problem Statement}
+
+[Qual problema estamos resolvendo?]
+
+\subsection{Contributions}
+
+This paper makes the following contributions:
+\begin{enumerate}
+    \item Contribution 1
+    \item Contribution 2
+    \item Contribution 3
+\end{enumerate}
+
+% ============================================================================
+\section{Background}
+% ============================================================================
+
+[Teoria necessária para entender o paper]
+
+\subsection{Theoretical Foundation}
+
+[Matemática, física, ou teoria de CS relevante]
+
+\subsection{Related Concepts}
+
+[Conceitos relacionados que o leitor precisa conhecer]
+
+% ============================================================================
+\section{Methodology}
+% ============================================================================
+
+[Como o sistema funciona]
+
+\subsection{Architecture Overview}
+
+% Example architecture diagram
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+    node distance=1cm,
+    box/.style={rectangle, rounded corners, draw=black, fill=#1, minimum width=2cm, minimum height=0.8cm, align=center, font=\small},
+    arrow/.style={->, >=stealth, thick}
+]
+    \node[box=arkheion-blue!30] (input) {Input};
+    \node[box=arkheion-green!30, right=of input] (process) {Process};
+    \node[box=arkheion-purple!30, right=of process] (output) {Output};
+
+    \draw[arrow] (input) -- (process);
+    \draw[arrow] (process) -- (output);
+\end{tikzpicture}
+\caption{System architecture overview.}
+\label{fig:architecture}
+\end{figure}
+
+\subsection{Algorithm}
+
+[Descrição do algoritmo principal]
+
+% ============================================================================
+\section{Implementation}
+% ============================================================================
+
+[Detalhes de implementação]
+
+\subsection{Code Structure}
+
+\begin{lstlisting}[style=python, caption={Example implementation}]
+class ExampleComponent:
+    """Component description."""
+
+    def __init__(self, config: dict):
+        self.config = config
+        self.phi = 1.618033988749895  # Golden ratio
+
+    def process(self, data: np.ndarray) -> np.ndarray:
+        """Process input data."""
+        return data * self.phi
+\end{lstlisting}
+
+\subsection{Key Components}
+
+[Descrição dos componentes principais]
+
+% ============================================================================
+\section{Experiments}
+% ============================================================================
+
+[Setup experimental e metodologia de teste]
+
+\subsection{Experimental Setup}
+
+\begin{itemize}
+    \item Hardware: AMD Radeon RX 6600M, 8GB VRAM
+    \item Software: Python 3.12, PyTorch 2.4.1+rocm6.0
+    \item Dataset: [descrição do dataset]
+\end{itemize}
+
+\subsection{Metrics}
+
+[Métricas usadas para avaliação]
+
+% ============================================================================
+\section{Results}
+% ============================================================================
+
+[Resultados experimentais]
+
+\subsection{Quantitative Results}
+
+% Example results table
+\begin{table}[h]
+\centering
+\caption{Experimental Results}
+\begin{tabular}{lrrr}
+\toprule
+\textbf{Method} & \textbf{Metric 1} & \textbf{Metric 2} & \textbf{Time} \\
+\midrule
+Baseline & 0.50 & 0.60 & 100ms \\
+Ours & \textbf{0.85} & \textbf{0.90} & 50ms \\
+\bottomrule
+\end{tabular}
+\label{tab:results}
+\end{table}
+
+% Example bar chart
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+    title={\textbf{Performance Comparison}},
+    ybar,
+    bar width=15pt,
+    height=5cm,
+    width=\columnwidth,
+    symbolic x coords={Baseline,Ours},
+    xtick=data,
+    ymin=0,
+    ymax=1,
+    ylabel={Score},
+    nodes near coords,
+    every node near coord/.append style={font=\tiny},
+]
+\addplot[fill=arkheion-blue!60] coordinates {(Baseline,0.50) (Ours,0.85)};
+\end{axis}
+\end{tikzpicture}
+\caption{Performance comparison between baseline and our method.}
+\label{fig:performance}
+\end{figure}
+
+\subsection{Qualitative Analysis}
+
+[Análise qualitativa dos resultados]
+
+% ============================================================================
+\section{Discussion}
+% ============================================================================
+
+[Discussão dos resultados, implicações, limitações]
+
+\subsection{Analysis}
+
+[Análise profunda dos resultados]
+
+\subsection{Limitations}
+
+[Limitações conhecidas]
+
+\subsection{Future Work}
+
+[Direções futuras]
+
+% ============================================================================
+\section{Related Work}
+% ============================================================================
+
+[Comparação com trabalhos relacionados]
+
+\begin{itemize}
+    \item \textbf{Work 1}: Description and comparison
+    \item \textbf{Work 2}: Description and comparison
+\end{itemize}
+
+% ============================================================================
+\section{Conclusion}
+% ============================================================================
+
+[Resumo das contribuições e conclusões]
+
+% ============================================================================
+\section*{Acknowledgments}
+% ============================================================================
+
+This work was developed as part of ARKHEION AGI 2.0, a quantum-holographic cognitive architecture system.
+
+% ============================================================================
+% REFERENCES
+% ============================================================================
+\begin{thebibliography}{99}
+
+\bibitem{maldacena1999}
+J. Maldacena, ``The Large N Limit of Superconformal Field Theories and Supergravity,'' \textit{Adv. Theor. Math. Phys.}, vol. 2, pp. 231-252, 1998.
+
+\bibitem{tononi2016}
+G. Tononi et al., ``Integrated Information Theory: From Consciousness to its Physical Substrate,'' \textit{Nature Reviews Neuroscience}, vol. 17, pp. 450-461, 2016.
+
+\bibitem{nickel2017}
+M. Nickel \& D. Kiela, ``Poincaré Embeddings for Learning Hierarchical Representations,'' \textit{NeurIPS}, 2017.
+
+\end{thebibliography}
+
+\end{document}

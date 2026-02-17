@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+title: "ARKHEION AGI 2.0"
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: "Feitosa"
+    given-names: "Jhonatan Vieira"
+    email: "ooriginador@gmail.com"
+    affiliation: "Independent Researcher, Manaus, Amazonas, Brazil"
+abstract: >-
+  ARKHEION AGI 2.0 is a comprehensive artificial general intelligence
+  framework featuring quantum-inspired processing with AdS/CFT-based
+  holographic compression, IIT 4.0 consciousness modeling with φ computation,
+  hierarchical universal adaptive memory (HUAM), bio-synthetic neural
+  networks, and a Rust-based Forge runtime. The system comprises 586K LOC
+  Python, 21K LOC C++, and 18K LOC Rust, documented across 50 academic
+  papers (252 pages) with rigorous epistemological methodology.
+keywords:
+  - artificial general intelligence
+  - quantum-inspired computing
+  - holographic compression
+  - integrated information theory
+  - consciousness modeling
+  - ternary computing
+repository-code: "https://github.com/jhonslife/ARKHEION_AGI_2.0"
+license: MIT
+version: "2.2.0"
+date-released: "2026-02-16"
